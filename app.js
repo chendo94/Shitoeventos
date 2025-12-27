@@ -1,95 +1,89 @@
-// 🔥 CONFIGURACIÓN DE FIREBASE
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDocs,
+  collection,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDLGTFu_TNp_3qpfRWjNClLpelBZn6dNLw",
-  authDomain: "citasautolavado.firebaseapp.com",
-  projectId: "citasautolavado",
-  storageBucket: "citasautolavado.firebasestorage.app",
-  messagingSenderId: "901728075794",
-  appId: "1:901728075794:web:ff19a18e0b18b19a8e98cb"
+  apiKey: "AIzaSyAXMqbxVoSCZ117xHqWqY67abAk8iNrwMU",
+  authDomain: "eventospagos-1414.firebaseapp.com",
+  projectId: "eventospagos-1414",
+  storageBucket: "eventospagos-1414.firebasestorage.app",
+  messagingSenderId: "204292750312",
+  appId: "1:204292750312:web:b8a314e2b9b67bdb5b425d"
 };
 
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// Referencias HTML
-const form = document.getElementById("citaForm");
-const estado = document.getElementById("estado");
+window.mostrarSeccion = (id) => {
+  document.querySelectorAll('.seccion').forEach(s => s.classList.add('oculto'));
+  document.getElementById(id).classList.remove('oculto');
+  if (id === 'consultar') cargarEventos();
+};
 
-let citaId = null;
+window.marcarTodos = () => {
+  const marcado = document.getElementById('todos').checked;
+  document.querySelectorAll('.integrante').forEach(i => i.checked = marcado);
+};
 
-// 🔁 AL CARGAR LA PÁGINA
-window.addEventListener("load", () => {
-  const citaGuardada = localStorage.getItem("citaId");
+window.guardarEvento = async () => {
+  const fecha = document.getElementById('fecha').value;
+  const horas = document.getElementById('horas').value;
+  const referencia = document.getElementById('referencia').value;
 
-  if (citaGuardada) {
-    citaId = citaGuardada;
-    estado.innerText = "🔄 Revisando estado de tu cita...";
-    estado.style.color = "#38bdf8";
-    escucharEstado();
+  const integrantes = [...document.querySelectorAll('.integrante')]
+    .filter(i => i.checked)
+    .map(i => i.value);
+
+  if (!fecha || !horas || integrantes.length === 0) {
+    alert("Completa todos los campos");
+    return;
   }
-});
 
-// 📤 ENVIAR SOLICITUD
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  await setDoc(doc(db, "eventos", fecha), {
+    fecha,
+    horas,
+    referencia,
+    integrantes,
+    creado: new Date()
+  });
 
-  const data = {
-    nombre: nombre.value,
-    calle: calle.value,
-    colonia: colonia.value,
-    referencia: referencia.value,
-    telefono: telefono.value,
-    aceptada: false,
-    fechaServicio: "",
-    horaServicio: "",
-    creada: firebase.firestore.FieldValue.serverTimestamp()
-  };
+  document.getElementById('resumen').innerHTML = `
+    ✅ <strong>Registro exitoso</strong><br>
+    📅 ${fecha}<br>
+    ⏱ ${horas} horas<br>
+    👥 ${integrantes.join(', ')}<br>
+    📝 ${referencia}
+  `;
+};
 
-  try {
-    const doc = await db.collection("citas").add(data);
-    citaId = doc.id;
+const cargarEventos = async () => {
+  const lista = document.getElementById('listaEventos');
+  lista.innerHTML = "";
 
-    // 💾 GUARDAR ID LOCAL
-    localStorage.setItem("citaId", citaId);
+  const snapshot = await getDocs(collection(db, "eventos"));
+  snapshot.forEach(docSnap => {
+    const e = docSnap.data();
+    lista.innerHTML += `
+      <div class="evento">
+        <strong>${e.fecha}</strong><br>
+        ⏱ ${e.horas} horas<br>
+        👥 ${e.integrantes.join(', ')}<br>
+        📝 ${e.referencia}<br>
+        <button onclick="borrarEvento('${docSnap.id}')">🗑 Borrar</button>
+      </div>
+    `;
+  });
+};
 
-    estado.innerText = "🕒 Solicitud enviada, espere confirmación...";
-    estado.style.color = "#facc15";
-
-    escucharEstado();
-    form.reset();
-  } catch (error) {
-    estado.innerText = "❌ Error al enviar la solicitud";
-    estado.style.color = "red";
-    console.error(error);
+window.borrarEvento = async (id) => {
+  if (confirm("¿Seguro que deseas borrar este evento?")) {
+    await deleteDoc(doc(db, "eventos", id));
+    cargarEventos();
   }
-});
-
-// 👂 ESCUCHAR CAMBIOS EN FIRESTORE
-function escucharEstado() {
-  if (!citaId) return;
-
-  db.collection("citas").doc(citaId)
-    .onSnapshot((doc) => {
-      if (!doc.exists) {
-        estado.innerText = "⚠️ No se encontró tu cita";
-        estado.style.color = "red";
-        return;
-      }
-
-      const cita = doc.data();
-
-      if (cita.aceptada === false) {
-        estado.innerText = "🕒 Tu cita sigue en espera de confirmación";
-        estado.style.color = "#facc15";
-      }
-
-      if (cita.aceptada === true) {
-        estado.innerText =
-`✅ Cita aceptada
-📅 Día: ${cita.fechaServicio}
-⏰ Hora de llegada: ${cita.horaServicio}`;
-        estado.style.color = "#22c55e";
-      }
-    });
-}
+};
