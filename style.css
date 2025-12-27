@@ -1,0 +1,73 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+  margin: 0;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 📦 CONTENEDOR */
+.container {
+  background: #020617;
+  padding: 20px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 380px;
+  margin: 10px;
+}
+
+/* 🧾 TEXTO */
+h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* 🧠 INPUTS */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* 👆 BOTÓN */
+button {
+  width: 100%;
+  margin-top: 15px;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background: #22c55e;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* 📢 ESTADO */
+#estado {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+  white-space: pre-line;
+}
+
+/* 📱 PANTALLAS MUY PEQUEÑAS */
+@media (max-width: 360px) {
+  .container {
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}
