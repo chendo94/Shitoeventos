@@ -2,37 +2,58 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Auto Lavado a Domicilio</title>
-
-  <!-- 📱 RESPONSIVE -->
+  <title>Eventos Pagos Shito Morales</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="container">
-    <h2>Solicitar Auto Lavado</h2>
+<div class="app-container">
 
-    <form id="citaForm">
+  <h1>🎵 Eventos Pagos<br>Shito Morales</h1>
 
-      <input type="text" id="nombre" placeholder="Nombre del cliente" required>
+  <nav>
+    <button onclick="mostrarSeccion('registrar')">Registrar Evento</button>
+    <button onclick="mostrarSeccion('consultar')">Consultar Eventos</button>
+  </nav>
 
-      <input type="text" id="calle" placeholder="Calle y número" required>
-      <input type="text" id="colonia" placeholder="Colonia" required>
-      <input type="text" id="referencia" placeholder="Referencia">
-      <input type="tel" id="telefono" placeholder="Teléfono" required>
+  <!-- REGISTRAR EVENTO -->
+  <section id="registrar" class="seccion">
+    <h2>Registrar Evento</h2>
 
-      <button type="submit">Solicitar servicio</button>
-    </form>
+    <label>Fecha del evento</label>
+    <input type="date" id="fecha">
 
-    <p id="estado"></p>
-  </div>
+    <label>Horas trabajadas</label>
+    <input type="number" id="horas" min="1">
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <label>Referencia</label>
+    <input type="text" id="referencia" placeholder="Ej. Con la familia Pérez en el rancho">
 
-  <script src="app.js"></script>
+    <h3>Integrantes</h3>
+    <label>
+      <input type="checkbox" id="todos" onchange="marcarTodos()"> Todos
+    </label>
+
+    <div class="integrantes">
+      <label><input type="checkbox" class="integrante" value="Waly"> Waly</label>
+      <label><input type="checkbox" class="integrante" value="Capu"> Capu</label>
+      <label><input type="checkbox" class="integrante" value="Chendo"> Chendo</label>
+    </div>
+
+    <button onclick="guardarEvento()">Guardar Evento</button>
+
+    <div id="resumen"></div>
+  </section>
+
+  <!-- CONSULTAR EVENTOS -->
+  <section id="consultar" class="seccion oculto">
+    <h2>Eventos de la semana</h2>
+    <div id="listaEventos"></div>
+  </section>
+
+</div>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>
